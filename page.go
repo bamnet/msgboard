@@ -79,3 +79,39 @@ func GetPage(w http.ResponseWriter, r *http.Request) {
 	b, _ := json.Marshal(page)
 	fmt.Fprint(w, string(b))
 }
+
+func UpdatePage(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+
+	vars := mux.Vars(r)
+	ID := vars["id"]
+
+	key, err := datastore.DecodeKey(ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var page Page
+
+	if err := datastore.Get(c, key, &page); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	page.ID = ID
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&page); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	page.LastUpdated = time.Now()
+
+	if _, err := datastore.Put(c, key, &page); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	b, _ := json.Marshal(page)
+	fmt.Fprint(w, string(b))
+}

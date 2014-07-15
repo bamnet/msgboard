@@ -11,7 +11,8 @@ func init() {
 	r := mux.NewRouter()
 	r.HandleFunc("/pages", ListPages).Methods("GET")
 	r.HandleFunc("/pages", CreatePage).Methods("POST")
-	r.HandleFunc("/pages/{id}", GetPage)
+	r.HandleFunc("/pages/{id}", GetPage).Methods("GET")
+	r.HandleFunc("/pages/{id}", UpdatePage).Methods("PATCH")
 	http.Handle("/", r)
 }
 
