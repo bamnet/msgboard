@@ -33,8 +33,13 @@ func ListPages(w http.ResponseWriter, r *http.Request) {
 		pages[i].ID = k.Encode()
 	}
 
+	if len(pages) == 0 {
+		fmt.Fprint(w, "[]")
+		return
+	}
 	b, _ := json.Marshal(pages)
 	fmt.Fprint(w, string(b))
+	return
 }
 
 func CreatePage(w http.ResponseWriter, r *http.Request) {
