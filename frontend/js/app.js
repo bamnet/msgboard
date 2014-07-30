@@ -15,6 +15,10 @@ msgboardApp.config(['$routeProvider',
         templateUrl: 'partials/show.html',
         controller: 'PageShowCtrl'
       }).
+      when('/pages/:pageId/edit', {
+        templateUrl: 'partials/edit.html',
+        controller: 'PageEditCtrl'
+      }).
       otherwise({
         redirectTo: '/pages'
       });

@@ -1,0 +1,6 @@
+<h1>Edit {{page.Title}}</h1>
+<form>
+	<input type="text" ng-model="page.Title" /><br />
+	<textarea ng-model="page.Content"></textarea><br />
+	<button ng-click="update(page)">Save</button>
+</form>
