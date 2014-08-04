@@ -12,6 +12,10 @@ msgboardApp.config(['$routeProvider',
 				templateUrl: 'partials/list.html',
 				controller: 'PageListCtrl'
 			}).
+			when('/pages/new', {
+				templateUrl: 'partials/new.html',
+				controller: 'PageCreateCtrl'
+			}).
 			when('/pages/:pageId', {
 				templateUrl: 'partials/show.html',
 				controller: 'PageShowCtrl'

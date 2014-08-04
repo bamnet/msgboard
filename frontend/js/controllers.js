@@ -24,3 +24,14 @@ msgboardControllers.controller('PageEditCtrl', ['$scope', '$routeParams', '$loca
 		};
 	}
 ]);
+
+msgboardControllers.controller('PageCreateCtrl', ['$scope', '$location', 'Page',
+	function($scope, $location, Page) {
+		$scope.page =  new Page();
+		$scope.create = function(page) {
+			$scope.page = angular.copy(page);
+			$scope.page.$create();
+			$location.path('/pages/');
+		};
+	}
+]);
