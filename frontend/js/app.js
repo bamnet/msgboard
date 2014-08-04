@@ -1,5 +1,6 @@
 var msgboardApp = angular.module('msgboardApp', [
 	'ngRoute',
+	'ngSanitize',
 	'msgboardControllers',
 	'msgboardServices'
 ]);

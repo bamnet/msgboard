@@ -9,6 +9,7 @@ import (
 
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/russross/blackfriday"
 )
 
 type Page struct {
@@ -16,6 +17,7 @@ type Page struct {
 	Content     string `datastore:",noindex"`
 	LastUpdated time.Time
 	ID          string `datastore:"-"`
+	Rendered    string `datastore:"-"`
 }
 
 func ListPages(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +82,7 @@ func GetPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	page.ID = k.Encode()
+	page.Rendered = string(blackfriday.MarkdownCommon([]byte(page.Content)))
 
 	b, _ := json.Marshal(page)
 	fmt.Fprint(w, string(b))

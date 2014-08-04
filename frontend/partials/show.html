@@ -1,4 +1,4 @@
 <h1>{{page.Title}}</h1>
-{{page.Content}}
+<div ng-bind-html="page.Rendered"></div>
 <br />
 <a href="#/pages/{{page.ID}}/edit">Edit</a> | <a href="#/pages">Back</a>
