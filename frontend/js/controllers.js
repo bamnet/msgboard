@@ -15,12 +15,15 @@ msgboardControllers.controller('PageShowCtrl', ['$scope', '$routeParams', 'Page'
 msgboardControllers.controller('PageEditCtrl', ['$scope', '$routeParams', '$location', 'Page',
 	function($scope, $routeParams, $location, Page) {
 		var pageId = $routeParams.pageId;
-		$scope.page =  Page.get({pageId: pageId});
+		$scope.page = Page.get({pageId: pageId});
 
 		$scope.update = function(page) {
 			$scope.page = angular.copy(page);
-			$scope.page.$update({pageId: pageId});
-			$location.path('/pages/' + pageId);
+			$scope.page.$update({pageId: pageId}, function(){
+				$location.path('/pages/' + pageId);
+			}, function(err){
+				$scope.error = err.data;
+			});
 		};
 	}
 ]);

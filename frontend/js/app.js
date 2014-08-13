@@ -2,7 +2,8 @@ var msgboardApp = angular.module('msgboardApp', [
 	'ngRoute',
 	'ngSanitize',
 	'msgboardControllers',
-	'msgboardServices'
+	'msgboardServices',
+	'msgboardFilters'
 ]);
 
 msgboardApp.config(['$routeProvider',
