@@ -3,7 +3,9 @@ package msgboard
 import (
 	"appengine"
 	"appengine/datastore"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -19,6 +21,10 @@ type Page struct {
 	ID          string `datastore:"-"`
 	Rendered    string `datastore:"-"`
 }
+
+var (
+	ErrMissingTitle = errors.New("page missing title")
+)
 
 func ListPages(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -46,10 +52,9 @@ func ListPages(w http.ResponseWriter, r *http.Request) {
 
 func CreatePage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	decoder := json.NewDecoder(r.Body)
 	var p Page
-	if err := decoder.Decode(&p); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err, ec := jsonToPage(r.Body, &p); err != nil {
+		http.Error(w, err.Error(), ec)
 		return
 	}
 	p.LastUpdated = time.Now()
@@ -106,13 +111,11 @@ func UpdatePage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	page.ID = ID
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&page); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err, ec := jsonToPage(r.Body, &page); err != nil {
+		http.Error(w, err.Error(), ec)
 		return
 	}
+	page.ID = ID
 	page.LastUpdated = time.Now()
 
 	if _, err := datastore.Put(c, key, &page); err != nil {
@@ -122,4 +125,15 @@ func UpdatePage(w http.ResponseWriter, r *http.Request) {
 
 	b, _ := json.Marshal(page)
 	fmt.Fprint(w, string(b))
+}
+
+func jsonToPage(data io.Reader, page *Page) (error, int) {
+	decoder := json.NewDecoder(data)
+	if err := decoder.Decode(&page); err != nil {
+		return err, http.StatusInternalServerError
+	}
+	if page.Title == "" {
+		return ErrMissingTitle, http.StatusBadRequest
+	}
+	return nil, http.StatusOK
 }
