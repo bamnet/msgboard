@@ -32,11 +32,22 @@ func ListPages(w http.ResponseWriter, r *http.Request) {
 	q := datastore.NewQuery("Page")
 	var pages []Page
 
+	if r.FormValue("view") == "ids" {
+		q = q.KeysOnly()
+	}
 	keys, err := q.GetAll(c, &pages)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	if len(keys) > len(pages) {
+		// Handle instances where not enough pages were created for each key.
+		// This behavior happens when GetAll doesn't create pages like a KeyOnly query.
+		diff := len(keys) - len(pages)
+		pages = append(pages, make([]Page, diff)...)
+	}
+
 	for i, k := range keys {
 		pages[i].ID = k.Encode()
 	}
