@@ -1,7 +1,8 @@
+// Package msgboard provides a message board application for users to
+// create and edit HTML pages shown on a screen.
 package msgboard
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -14,8 +15,4 @@ func init() {
 	r.HandleFunc("/pages/{id}", GetPage).Methods("GET")
 	r.HandleFunc("/pages/{id}", UpdatePage).Methods("PATCH")
 	http.Handle("/", r)
-}
-
-func mainHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, world.")
 }
