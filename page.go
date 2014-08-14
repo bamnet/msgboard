@@ -14,18 +14,24 @@ import (
 	"github.com/russross/blackfriday"
 )
 
+// Page models a slide to be shown on the message board.
 type Page struct {
-	Title       string
-	Content     string `datastore:",noindex"`
-	LastUpdated time.Time
-	ID          string `datastore:"-"`
-	Rendered    string `datastore:"-"`
+	Title       string    // Title of the Page
+	Content     string    `datastore:",noindex"` // Markdown text content.
+	LastUpdated time.Time // Timestamp the content was last updated.
+	ID          string    `datastore:"-"` // Encoded datastore key acting as an ID.
+	Rendered    string    `datastore:"-"` // HTML for the page based rendered from Content.
 }
 
+// Error codes returned for invalid pages.
 var (
-	ErrMissingTitle = errors.New("page missing title")
+	ErrMissingTitle = errors.New("page missing title") // Pages always need a title.
 )
 
+// ListPages returns JSON of all the pages.
+// The view GET parameter can be used to restrict the output level:
+//   (blank / default) - Full results
+//   ids - Results with only the ID attribute.
 func ListPages(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 
@@ -61,6 +67,7 @@ func ListPages(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// CreatePage uses JSON POST data to create and save a new Page.
 func CreatePage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	var p Page
@@ -80,6 +87,7 @@ func CreatePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(b))
 }
 
+// GetPage uses a Page ID from the URL to return JSON of the Page.
 func GetPage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 
@@ -104,6 +112,7 @@ func GetPage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(b))
 }
 
+// UpdatePage uses a Page ID from the URL and JSON POST data to Update a Page.
 func UpdatePage(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 
