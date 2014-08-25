@@ -10,19 +10,19 @@ msgboardApp.config(['$routeProvider',
 	function($routeProvider) {
 		$routeProvider.
 			when('/pages', {
-				templateUrl: 'partials/list.html',
+				templateUrl: 'partials/pages/list.html',
 				controller: 'PageListCtrl'
 			}).
 			when('/pages/new', {
-				templateUrl: 'partials/new.html',
+				templateUrl: 'partials/pages/new.html',
 				controller: 'PageCreateCtrl'
 			}).
 			when('/pages/:pageId', {
-				templateUrl: 'partials/show.html',
+				templateUrl: 'partials/pages/show.html',
 				controller: 'PageShowCtrl'
 			}).
 			when('/pages/:pageId/edit', {
-				templateUrl: 'partials/edit.html',
+				templateUrl: 'partials/pages/edit.html',
 				controller: 'PageEditCtrl'
 			}).
 			otherwise({
