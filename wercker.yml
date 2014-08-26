@@ -1,4 +1,4 @@
-box: wercker/golang
+box: bamnet/goapp
 # Build definition
 build:
   # The steps that will be executed on build
@@ -9,23 +9,27 @@ build:
 
     # Gets the dependencies
     - script:
-        name: go get
+        name: goapp get
         code: |
           cd $WERCKER_SOURCE_DIR
+          echo $PATH
+          ls /usr/local
+          ls /usr/local/go_appengine
+          which goapp
           go version
-          go get -t ./...
+          goapp get -t ./...
 
     # Build the project
     - script:
-        name: go build
+        name: goapp build
         code: |
-          go build ./...
+          goapp build ./...
 
     # Test the project
     - script:
-        name: go test
+        name: goapp test
         code: |
-          go test ./...
+          goapp test ./...
           
 deploy:
   steps:
