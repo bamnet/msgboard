@@ -30,6 +30,6 @@ build:
 deploy:
   steps:
     - etre0/appengine-deploy-path-update:
-      email: $APP_ENGINE_USER
-      password: $APP_ENGINE_PASS
-      srcpath: .
+        email: $APP_ENGINE_USER
+        password: $APP_ENGINE_PASS
+        srcpath: .
