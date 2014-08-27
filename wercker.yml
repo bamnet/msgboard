@@ -31,4 +31,4 @@ deploy:
     - script:
         name: appcfy.py update
         code: |
-          appcfg.py update $WERCKER_SOURCE_DIR --email=$APP_ENGINE_USER -passin < $APP_ENGINE_PASS
+          appcfg.py update $WERCKER_SOURCE_DIR --email="$APP_ENGINE_USER" -passin < "$APP_ENGINE_PASS"
