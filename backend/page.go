@@ -4,13 +4,10 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"errors"
-	"fmt"
 	"io"
-	"net/http"
 	"time"
 
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"github.com/russross/blackfriday"
 )
 
@@ -28,23 +25,20 @@ var (
 	ErrMissingTitle = errors.New("page missing title") // Pages always need a title.
 )
 
-// ListPages returns JSON of all the pages.
-// The view GET parameter can be used to restrict the output level:
-//   (blank / default) - Full results
+// ListPages returns all the pages.
+// The view arg can be used to restrict the output level:
+//   (blank) - Full results
 //   ids - Results with only the ID attribute.
-func ListPages(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
+func ListPages(ctx appengine.Context, view string) ([]Page, error) {
 	q := datastore.NewQuery("Page")
 	var pages []Page
 
-	if r.FormValue("view") == "ids" {
+	if view == "ids" {
 		q = q.KeysOnly()
 	}
-	keys, err := q.GetAll(c, &pages)
+	keys, err := q.GetAll(ctx, &pages)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
 	if len(keys) > len(pages) {
@@ -58,102 +52,71 @@ func ListPages(w http.ResponseWriter, r *http.Request) {
 		pages[i].ID = k.Encode()
 	}
 
-	if len(pages) == 0 {
-		fmt.Fprint(w, "[]")
-		return
-	}
-	b, _ := json.Marshal(pages)
-	fmt.Fprint(w, string(b))
-	return
+	return pages, nil
 }
 
-// CreatePage uses JSON POST data to create and save a new Page.
-func CreatePage(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
+// CreatePage uses JSON data to create and save a new Page.
+func CreatePage(ctx appengine.Context, jsonBody io.Reader) (*Page, error) {
 	var p Page
-	if err, ec := jsonToPage(r.Body, &p); err != nil {
-		http.Error(w, err.Error(), ec)
-		return
+	if err := jsonToPage(jsonBody, &p); err != nil {
+		return nil, err
 	}
 	p.LastUpdated = time.Now()
 
-	key, err := datastore.Put(c, datastore.NewIncompleteKey(c, "Page", nil), &p)
+	key, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "Page", nil), &p)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 	p.ID = key.Encode()
-	b, _ := json.Marshal(p)
-	fmt.Fprint(w, string(b))
+	return &p, nil
 }
 
-// GetPage uses a Page ID from the URL to return JSON of the Page.
-func GetPage(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
-	vars := mux.Vars(r)
-	ID := vars["id"]
-
+// GetPage uses a Page ID from the URL to return a Page.
+func GetPage(ctx appengine.Context, ID string) (*Page, error) {
 	k, err := datastore.DecodeKey(ID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
-	var page Page
 
-	if err := datastore.Get(c, k, &page); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	var page Page
+	if err := datastore.Get(ctx, k, &page); err != nil {
+		return nil, err
 	}
 	page.ID = k.Encode()
 	page.Rendered = string(blackfriday.MarkdownCommon([]byte(page.Content)))
-
-	b, _ := json.Marshal(page)
-	fmt.Fprint(w, string(b))
+	return &page, nil
 }
 
-// UpdatePage uses a Page ID from the URL and JSON POST data to Update a Page.
-func UpdatePage(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
-	vars := mux.Vars(r)
-	ID := vars["id"]
-
+// UpdatePage uses a Page ID from the URL and JSON data to update a Page.
+func UpdatePage(ctx appengine.Context, ID string, jsonBody io.Reader) (*Page, error) {
 	key, err := datastore.DecodeKey(ID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
 	var page Page
-
-	if err := datastore.Get(c, key, &page); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if err := datastore.Get(ctx, key, &page); err != nil {
+		return nil, err
 	}
-	if err, ec := jsonToPage(r.Body, &page); err != nil {
-		http.Error(w, err.Error(), ec)
-		return
+	if err := jsonToPage(jsonBody, &page); err != nil {
+		return nil, err
 	}
 	page.ID = ID
 	page.LastUpdated = time.Now()
 
-	if _, err := datastore.Put(c, key, &page); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if _, err := datastore.Put(ctx, key, &page); err != nil {
+		return nil, err
 	}
-
-	b, _ := json.Marshal(page)
-	fmt.Fprint(w, string(b))
+	return &page, nil
 }
 
-func jsonToPage(data io.Reader, page *Page) (error, int) {
+func jsonToPage(data io.Reader, page *Page) error {
 	decoder := json.NewDecoder(data)
 	if err := decoder.Decode(&page); err != nil {
-		return err, http.StatusInternalServerError
+		return err
 	}
 	if page.Title == "" {
-		return ErrMissingTitle, http.StatusBadRequest
+		return ErrMissingTitle
 	}
-	return nil, http.StatusOK
+	return nil
 }
