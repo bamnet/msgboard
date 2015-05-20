@@ -7,8 +7,8 @@ handlers:
 - url: /(pages).*
   script: _go_app
 - url: /
-  static_files: frontend/index.html
-  upload: frontend/index.html
+  static_files: frontend/admin/index.html
+  upload: frontend/admin/index.html
 - url: /(.+)
-  static_files: frontend/\1
-  upload: frontend/.*
+  static_files: frontend/admin/\1
+  upload: frontend/admin/.*
