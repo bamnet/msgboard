@@ -4,8 +4,8 @@ package msgboard
 
 import (
 	"appengine"
+	"appengine/datastore"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -20,17 +20,40 @@ func init() {
 	http.Handle("/api/", r)
 }
 
+func writeJSON(w http.ResponseWriter, v interface{}) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
+	return
+}
+
+func writeError(w http.ResponseWriter, err error) {
+	ec := http.StatusInternalServerError
+	switch err {
+	case datastore.ErrNoSuchEntity:
+		ec = http.StatusNotFound
+	case ErrMissingTitle:
+		ec = http.StatusBadRequest
+	}
+	http.Error(w, err.Error(), ec)
+	return
+}
+
 func listPagesHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	view := r.FormValue("view")
 
 	pages, err := ListPages(ctx, view)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeError(w, err)
 		return
 	}
-	b, _ := json.Marshal(pages)
-	fmt.Fprint(w, string(b))
+	writeJSON(w, pages)
 	return
 }
 
@@ -39,16 +62,11 @@ func createPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	page, err := CreatePage(ctx, r.Body)
 	if err != nil {
-		ec := http.StatusInternalServerError
-		if err == ErrMissingTitle {
-			ec = http.StatusBadRequest
-		}
-		http.Error(w, err.Error(), ec)
+		writeError(w, err)
 		return
 	}
 
-	b, _ := json.Marshal(page)
-	fmt.Fprint(w, string(b))
+	writeJSON(w, page)
 	return
 }
 
@@ -59,12 +77,11 @@ func getPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	page, err := GetPage(ctx, ID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeError(w, err)
 		return
 	}
 
-	b, _ := json.Marshal(page)
-	fmt.Fprint(w, string(b))
+	writeJSON(w, page)
 	return
 }
 
@@ -75,15 +92,10 @@ func updatePageHandler(w http.ResponseWriter, r *http.Request) {
 
 	page, err := UpdatePage(ctx, ID, r.Body)
 	if err != nil {
-		ec := http.StatusInternalServerError
-		if err == ErrMissingTitle {
-			ec = http.StatusBadRequest
-		}
-		http.Error(w, err.Error(), ec)
+		writeError(w, err)
 		return
 	}
 
-	b, _ := json.Marshal(page)
-	fmt.Fprint(w, string(b))
+	writeJSON(w, page)
 	return
 }
