@@ -10,9 +10,9 @@ import (
 
 func init() {
 	r := mux.NewRouter()
-	r.HandleFunc("/pages", ListPages).Methods("GET")
-	r.HandleFunc("/pages", CreatePage).Methods("POST")
-	r.HandleFunc("/pages/{id}", GetPage).Methods("GET")
-	r.HandleFunc("/pages/{id}", UpdatePage).Methods("PATCH")
-	http.Handle("/", r)
+	r.HandleFunc("/api/pages", ListPages).Methods("GET")
+	r.HandleFunc("/api/pages", CreatePage).Methods("POST")
+	r.HandleFunc("/api/pages/{id}", GetPage).Methods("GET")
+	r.HandleFunc("/api/pages/{id}", UpdatePage).Methods("PATCH")
+	http.Handle("/api/", r)
 }
