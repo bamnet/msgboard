@@ -13,11 +13,11 @@ import (
 
 // Page models a slide to be shown on the message board.
 type Page struct {
-	Title       string    // Title of the Page
-	Content     string    `datastore:",noindex"` // Markdown text content.
-	LastUpdated time.Time // Timestamp the content was last updated.
-	ID          string    `datastore:"-"` // Encoded datastore key acting as an ID.
-	Rendered    string    `datastore:"-"` // HTML for the page based rendered from Content.
+	Title       string    `json:"title"`                        // Title of the Page
+	Content     string    `json:"content" datastore:",noindex"` // Markdown text content.
+	LastUpdated time.Time `json:"last_updated"`                 // Timestamp the content was last updated.
+	ID          string    `json:"id" datastore:"-"`             // Encoded datastore key acting as an ID.
+	Rendered    string    `json:"rendered" datastore:"-"`       // HTML for the page based rendered from Content.
 }
 
 // Error codes returned for invalid pages.

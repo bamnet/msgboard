@@ -3,11 +3,11 @@
 	<div ng-show="error" class="alert alert-danger" role="alert">{{ error | capitalize }}</div>
 	<div class="form-group">
 		<label for="pageTitle">Title</label>
-		<input type="text" ng-model="page.Title" id="pageTitle" class="form-control">
+		<input type="text" ng-model="page.title" id="pageTitle" class="form-control">
 	</div>
 	<div class="form-group">
 		<label for="pageContent">Content</label>
-		<textarea ng-model="page.Content" id="pageContent" class="form-control" rows="10" cols="10"></textarea>
+		<textarea ng-model="page.content" id="pageContent" class="form-control" rows="10" cols="10"></textarea>
 	</div>
 	<button ng-click="create(page)" type="submit" class="btn btn-success">Create</button>
 </form>
