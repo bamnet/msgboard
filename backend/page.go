@@ -3,6 +3,7 @@ package msgboard
 import (
 	"appengine"
 	"appengine/datastore"
+	"appengine/memcache"
 	"errors"
 	"io"
 	"time"
@@ -73,6 +74,22 @@ func CreatePage(ctx appengine.Context, jsonBody io.Reader) (*Page, error) {
 
 // GetPage uses a Page ID from the URL to return a Page.
 func GetPage(ctx appengine.Context, ID string) (*Page, error) {
+	page, _ := getPageMemcache(ctx, ID)
+	if page == nil {
+		ctx.Debugf("memcache miss for id: %s", ID)
+		var err error
+		page, err = getPageDatastore(ctx, ID)
+		if err != nil {
+			return nil, err
+		}
+		defer setPageMemcache(ctx, page)
+	}
+
+	page.Rendered = string(blackfriday.MarkdownCommon([]byte(page.Content)))
+	return page, nil
+}
+
+func getPageDatastore(ctx appengine.Context, ID string) (*Page, error) {
 	k, err := datastore.DecodeKey(ID)
 	if err != nil {
 		return nil, err
@@ -83,8 +100,29 @@ func GetPage(ctx appengine.Context, ID string) (*Page, error) {
 		return nil, err
 	}
 	page.ID = k.Encode()
-	page.Rendered = string(blackfriday.MarkdownCommon([]byte(page.Content)))
 	return &page, nil
+}
+
+func getPageMemcache(ctx appengine.Context, ID string) (*Page, error) {
+	var page Page
+	if _, err := memcache.JSON.Get(ctx, ID, &page); err != nil {
+		return nil, err
+	}
+	return &page, nil
+}
+
+func setPageMemcache(ctx appengine.Context, page *Page) {
+	// Don't store the rendered HTML in memcache
+	page.Rendered = ""
+
+	i := &memcache.Item{
+		Key:    page.ID,
+		Object: page,
+	}
+
+	if err := memcache.JSON.Set(ctx, i); err != nil {
+		ctx.Errorf("error setting memcache: %s", err)
+	}
 }
 
 // UpdatePage uses a Page ID from the URL and JSON data to update a Page.
@@ -107,6 +145,7 @@ func UpdatePage(ctx appengine.Context, ID string, jsonBody io.Reader) (*Page, er
 	if _, err := datastore.Put(ctx, key, &page); err != nil {
 		return nil, err
 	}
+	defer setPageMemcache(ctx, &page)
 	return &page, nil
 }
 
