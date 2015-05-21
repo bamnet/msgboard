@@ -33,8 +33,8 @@ msgboardControllers.controller('PageCreateCtrl', ['$scope', '$location', 'Page',
 		$scope.page =  new Page();
 		$scope.create = function(page) {
 			$scope.page = angular.copy(page);
-			$scope.page.$create(function(){
-				$location.path('/pages/');
+			$scope.page.$create(function(page){
+				$location.path('/pages/' + page.id);
 			}, function(err){
 				$scope.error = err.data;
 			});
