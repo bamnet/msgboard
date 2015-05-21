@@ -49,3 +49,37 @@ msgboardControllers.controller('PageCreateCtrl', ['$scope', '$location', 'Page',
 		};
 	}
 ]);
+
+msgboardControllers.controller('DisplayShowCtrl', ['$scope', '$interval', 'Page',
+	function ($scope, $interval, Page) {
+		$scope.activePageIndex = 0;
+		$scope.activePage = undefined;
+		$scope.pages = Page.list({view: 'ids'}, function(){
+			$scope.activePage = Page.get({pageId: $scope.pages[$scope.activePageIndex].id});
+		});
+
+		var pageInterval = $interval(function(){
+			if($scope.activePageIndex >= $scope.pages.length-1) {
+				$scope.pages = Page.list({view: 'ids'}, function(){
+					$scope.activePageIndex = 0;
+					$scope.activePage = Page.get({pageId: $scope.pages[$scope.activePageIndex].id});
+				});
+			} else {
+				$scope.activePageIndex++;
+				$scope.activePage = Page.get({pageId: $scope.pages[$scope.activePageIndex].id});
+			}
+		}, 1000);
+
+		$scope.stopIntervals = function(){
+			if (angular.isDefined(pageInterval)) {
+				$interval.cancel(pageInterval);
+				pageInterval = undefined;
+			}
+		};
+
+		$scope.$on('$destroy', function() {
+			// Stop any active intervals.
+			$scope.stopIntervals();
+		});
+	}
+]);
