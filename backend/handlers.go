@@ -17,6 +17,7 @@ func init() {
 	r.HandleFunc("/api/pages", createPageHandler).Methods("POST")
 	r.HandleFunc("/api/pages/{id}", getPageHandler).Methods("GET")
 	r.HandleFunc("/api/pages/{id}", updatePageHandler).Methods("PATCH")
+	r.HandleFunc("/api/pages/{id}", deletePageHandler).Methods("DELETE")
 	http.Handle("/api/", r)
 }
 
@@ -97,5 +98,19 @@ func updatePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, page)
+	return
+}
+
+func deletePageHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	vars := mux.Vars(r)
+	ID := vars["id"]
+
+	if err := DeletePage(ctx, ID); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 	return
 }

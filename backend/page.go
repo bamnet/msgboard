@@ -110,6 +110,15 @@ func UpdatePage(ctx appengine.Context, ID string, jsonBody io.Reader) (*Page, er
 	return &page, nil
 }
 
+// DeletePage uses a Page ID to remove a page from the datastore.
+func DeletePage(ctx appengine.Context, ID string) error {
+	key, err := datastore.DecodeKey(ID)
+	if err != nil {
+		return err
+	}
+	return datastore.Delete(ctx, key)
+}
+
 func jsonToPage(data io.Reader, page *Page) error {
 	decoder := json.NewDecoder(data)
 	if err := decoder.Decode(&page); err != nil {

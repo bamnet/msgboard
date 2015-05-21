@@ -25,6 +25,14 @@ msgboardControllers.controller('PageEditCtrl', ['$scope', '$routeParams', '$loca
 				$scope.error = err.data;
 			});
 		};
+
+		$scope.delete = function(page) {
+			$scope.page.$delete({pageId: pageId}, function(){
+				$location.path('/pages/');
+			}, function(err){
+				$scope.error = err.data;
+			});
+		};
 	}
 ]);
 

@@ -5,7 +5,8 @@ msgboardServices.factory('Page', ['$resource',
 		return $resource('api/pages/:pageId', {}, {
 			list: {method:'GET', isArray:true},
 			update: {method:'PATCH'},
-			create: {method: 'POST'}
+			create: {method: 'POST'},
+			delete: {method: 'DELETE'}
 		});
 	}
 ]);
