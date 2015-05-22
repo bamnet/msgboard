@@ -1,10 +1,12 @@
 package msgboard
 
 import (
+	"reflect"
 	"sort"
 	"testing"
 	"time"
 
+	"appengine"
 	"appengine/aetest"
 	"appengine/datastore"
 )
@@ -60,18 +62,7 @@ func TestListPages(t *testing.T) {
 	}
 	defer ctx.Close()
 
-	p := []Page{
-		{Title: "1", Content: "Body here"},
-		{Title: "2", Content: ""},
-	}
-	_, err = datastore.PutMulti(ctx, []*datastore.Key{
-		datastore.NewIncompleteKey(ctx, "Page", nil),
-		datastore.NewIncompleteKey(ctx, "Page", nil),
-	}, p)
-	if err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(1 * time.Second)
+	p, _, err := setupPages(ctx)
 
 	r, err := ListPages(ctx, "")
 	if err != nil {
@@ -88,5 +79,51 @@ func TestListPages(t *testing.T) {
 			t.Errorf("got title %s content %s, want title %s, content %s", gotT, gotC, wantT, wantC)
 		}
 	}
+}
 
+func TestListPagesViewIDs(t *testing.T) {
+	ctx, err := aetest.NewContext(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ctx.Close()
+
+	_, k, err := setupPages(ctx)
+
+	r, err := ListPages(ctx, "ids")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := len(r), len(k); got != want {
+		t.Errorf("got len: %d want len: %d", got, want)
+	}
+
+	var gotIDs []string
+	var wantIDs []string
+	for i := range k {
+		gotIDs = append(gotIDs, r[i].ID)
+		wantIDs = append(wantIDs, k[i].Encode())
+	}
+	sort.Strings(gotIDs)
+	sort.Strings(wantIDs)
+	if !reflect.DeepEqual(gotIDs, wantIDs) {
+		t.Errorf("got %s, want: %s", gotIDs, wantIDs)
+	}
+}
+
+func setupPages(ctx appengine.Context) ([]Page, []*datastore.Key, error) {
+	p := []Page{
+		{Title: "1", Content: "Body here"},
+		{Title: "2", Content: ""},
+	}
+	k, err := datastore.PutMulti(ctx, []*datastore.Key{
+		datastore.NewIncompleteKey(ctx, "Page", nil),
+		datastore.NewIncompleteKey(ctx, "Page", nil),
+	}, p)
+	if err != nil {
+		return nil, nil, err
+	}
+	time.Sleep(1 * time.Second)
+
+	return p, k, nil
 }
