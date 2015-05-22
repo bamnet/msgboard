@@ -32,6 +32,7 @@ var (
 //   ids - Results with only the ID attribute.
 func ListPages(ctx appengine.Context, view string) ([]Page, error) {
 	q := datastore.NewQuery("Page")
+	q = q.Order("Title")
 	var pages []Page
 
 	if view == "ids" {
