@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"sort"
 	"testing"
-	"time"
 
 	"appengine"
 	"appengine/aetest"
@@ -48,7 +47,7 @@ func TestGetPage(t *testing.T) {
 }
 
 func TestListPages(t *testing.T) {
-	ctx, err := aetest.NewContext(nil)
+	ctx, err := aetest.NewContext(&aetest.Options{StronglyConsistentDatastore: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +63,7 @@ func TestListPages(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got, want := len(r), len(p); got != want {
-		t.Errorf("got len: %d want len: %d", got, want)
+		t.Fatalf("got len: %d want len: %d", got, want)
 	}
 
 	for i := range p {
@@ -75,7 +74,7 @@ func TestListPages(t *testing.T) {
 }
 
 func TestListPagesViewIDs(t *testing.T) {
-	ctx, err := aetest.NewContext(nil)
+	ctx, err := aetest.NewContext(&aetest.Options{StronglyConsistentDatastore: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +90,7 @@ func TestListPagesViewIDs(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got, want := len(r), len(k); got != want {
-		t.Errorf("got len: %d want len: %d", got, want)
+		t.Fatalf("got len: %d want len: %d", got, want)
 	}
 
 	var gotIDs []string
@@ -106,7 +105,7 @@ func TestListPagesViewIDs(t *testing.T) {
 }
 
 func TestListPagesSorted(t *testing.T) {
-	ctx, err := aetest.NewContext(nil)
+	ctx, err := aetest.NewContext(&aetest.Options{StronglyConsistentDatastore: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -141,7 +140,6 @@ func setupPages(ctx appengine.Context) ([]Page, []*datastore.Key, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	time.Sleep(1 * time.Second)
 
 	// Return the correct order.
 	return []Page{p[1], p[0], p[2]}, []*datastore.Key{k[1], k[0], k[2]}, nil
