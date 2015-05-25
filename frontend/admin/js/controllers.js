@@ -60,13 +60,18 @@ msgboardControllers.controller('DisplayShowCtrl', ['$scope', '$interval', 'Page'
 
 		var pageInterval = $interval(function(){
 			if($scope.activePageIndex >= $scope.pages.length-1) {
-				$scope.pages = Page.list({view: 'ids'}, function(){
+				Page.list({view: 'ids'}, function(pages){
+					$scope.pages = pages;
 					$scope.activePageIndex = 0;
-					$scope.activePage = Page.get({pageId: $scope.pages[$scope.activePageIndex].id});
+					Page.get({pageId: $scope.pages[$scope.activePageIndex].id}, function(page) {
+						$scope.activePage = page;
+					});
 				});
 			} else {
 				$scope.activePageIndex++;
-				$scope.activePage = Page.get({pageId: $scope.pages[$scope.activePageIndex].id});
+				Page.get({pageId: $scope.pages[$scope.activePageIndex].id}, function(page) {
+					$scope.activePage = page;
+				});
 			}
 		}, 1000);
 

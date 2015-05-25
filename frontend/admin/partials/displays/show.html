@@ -1,7 +1,11 @@
-<h1>Display</h1>
-<h2>All Pages:</h2>
-<ul>
-	<li ng-repeat="page in pages">{{page.id}}</li>
-</ul>
-<h2>Active Index: {{activePageIndex}}</h2>
-<h2>Active Page: {{activePage.title}}</h2>
+<h1>{{activePage.title}}</h1>
+<h2>Last Updated: {{activePage.last_updated | date:'h:mm a'}}</h2>
+<div ng-bind-html="activePage.rendered"></div>
+<div id="debug">
+  <dt>Active Index</dt>
+  <dd>{{activePageIndex}}</dd>
+  All Pages:
+  <ul>
+    <li ng-repeat="page in pages">{{page.id}}</li>
+  </ul>
+</div>
