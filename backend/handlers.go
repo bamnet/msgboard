@@ -19,6 +19,8 @@ func init() {
 	r.HandleFunc("/api/pages/{id}", updatePageHandler).Methods("PATCH")
 	r.HandleFunc("/api/pages/{id}", deletePageHandler).Methods("DELETE")
 	http.Handle("/api/", r)
+
+	http.HandleFunc("/", homeRedirectHandler)
 }
 
 func writeJSON(w http.ResponseWriter, v interface{}) {
@@ -42,6 +44,11 @@ func writeError(w http.ResponseWriter, err error) {
 		ec = http.StatusBadRequest
 	}
 	http.Error(w, err.Error(), ec)
+	return
+}
+
+func homeRedirectHandler(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/admin/", http.StatusMovedPermanently)
 	return
 }
 
