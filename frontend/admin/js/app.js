@@ -9,10 +9,6 @@ var msgboardApp = angular.module('msgboardApp', [
 msgboardApp.config(['$routeProvider',
 	function($routeProvider) {
 		$routeProvider.
-			when('/display', {
-				templateUrl: 'partials/displays/show.html',
-				controller: 'DisplayShowCtrl'
-			}).
 			when('/pages', {
 				templateUrl: 'partials/pages/list.html',
 				controller: 'PageListCtrl'

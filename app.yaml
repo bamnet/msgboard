@@ -6,9 +6,12 @@ api_version: go1
 handlers:
 - url: /(api).*
   script: _go_app
-- url: /
+- url: /admin/
   static_files: frontend/admin/index.html
   upload: frontend/admin/index.html
+- url: /display/
+  static_files: frontend/display/index.html
+  upload: frontend/display/index.html
 - url: /(.+)
-  static_files: frontend/admin/\1
-  upload: frontend/admin/.*
+  static_files: frontend/\1
+  upload: frontend/.*
