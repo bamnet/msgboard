@@ -18,6 +18,10 @@ func init() {
 	r.HandleFunc("/api/pages/{id}", getPageHandler).Methods("GET")
 	r.HandleFunc("/api/pages/{id}", updatePageHandler).Methods("PATCH")
 	r.HandleFunc("/api/pages/{id}", deletePageHandler).Methods("DELETE")
+
+	r.HandleFunc("/api/blurbs", getBlurbsHandler).Methods("GET")
+	r.HandleFunc("/api/blurbs", updateBlurbsHandler).Methods("PATCH")
+
 	http.Handle("/api/", r)
 
 	http.HandleFunc("/", homeRedirectHandler)
@@ -119,5 +123,29 @@ func deletePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+	return
+}
+
+func getBlurbsHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	blurbs, err := GetBlurbs(ctx)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	writeJSON(w, blurbs)
+	return
+}
+
+func updateBlurbsHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	blurbs, err := UpdateBlurbs(ctx, r.Body)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	writeJSON(w, blurbs)
 	return
 }
