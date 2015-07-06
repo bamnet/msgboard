@@ -1,5 +1,13 @@
 var msgboardControllers = angular.module('msgboardControllers', []);
 
+msgboardControllers.controller('HeaderController', ['$scope', '$location',
+	function($scope, $location){
+		$scope.isActive = function(name) {
+			return $location.path().indexOf('/' + name) >= 0;
+		};
+	}
+]);
+
 msgboardControllers.controller('PageListCtrl', ['$scope', 'Page',
 	function ($scope, Page) {
 		$scope.pages = Page.list();
