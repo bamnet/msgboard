@@ -49,3 +49,24 @@ msgboardControllers.controller('PageCreateCtrl', ['$scope', '$location', 'Page',
 		};
 	}
 ]);
+
+msgboardControllers.controller('BlurbsShowCtrl', ['$scope', 'Blurbs',
+	function($scope, Blurbs) {
+		$scope.blurbs =  Blurbs.get();
+	}
+]);
+
+msgboardControllers.controller('BlurbsEditCtrl', ['$scope', '$location', 'Blurbs',
+	function($scope, $location, Blurbs) {
+		$scope.blurbs = Blurbs.get();
+
+		$scope.update = function(blurbs) {
+			$scope.blurbs = angular.copy(blurbs);
+			$scope.blurbs.$update(null, function(){
+				$location.path('/blurbs');
+			}, function(err){
+				$scope.error = err.data;
+			});
+		};
+	}
+]);

@@ -10,3 +10,12 @@ msgboardServices.factory('Page', ['$resource',
 		});
 	}
 ]);
+
+msgboardServices.factory('Blurbs', ['$resource',
+	function($resource){
+		return $resource('/api/blurbs', {}, {
+			get: {method:'GET'},
+			update: {method:'PATCH'}
+		});
+	}
+]);
