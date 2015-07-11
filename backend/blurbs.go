@@ -3,6 +3,7 @@ package msgboard
 import (
 	"appengine"
 	"appengine/datastore"
+	"appengine/memcache"
 	"io"
 	"time"
 
@@ -42,14 +43,20 @@ func (b *Blurbs) Save(c chan<- datastore.Property) error {
 
 // GetBlurbs returns the current Blurbs. If none exist, creates them.
 func GetBlurbs(ctx appengine.Context) (*Blurbs, error) {
-	var blurbs Blurbs
-	if err := datastore.Get(ctx, blurbsKey(ctx), &blurbs); err != nil {
-		if err == datastore.ErrNoSuchEntity {
-			return initBlurbs(ctx)
+	blurbs, _ := getBlurbsMemcache(ctx)
+	if blurbs == nil {
+		ctx.Debugf("memcache miss for blurbs")
+		var err error
+		blurbs, err = getBlurbsDatastore(ctx)
+		if err != nil {
+			if err == datastore.ErrNoSuchEntity {
+				return initBlurbs(ctx)
+			}
+			return nil, err
 		}
-		return nil, err
+		defer setBlurbsMemcache(ctx, blurbs)
 	}
-	return &blurbs, nil
+	return blurbs, nil
 }
 
 // UpdateBlurbs uses JSON data to update the Blurbs.
@@ -66,6 +73,7 @@ func UpdateBlurbs(ctx appengine.Context, jsonBody io.Reader) (*Blurbs, error) {
 	if _, err := datastore.Put(ctx, key, &blurbs); err != nil {
 		return nil, err
 	}
+	defer setBlurbsMemcache(ctx, &blurbs)
 	return &blurbs, nil
 }
 
@@ -79,6 +87,33 @@ func initBlurbs(ctx appengine.Context) (*Blurbs, error) {
 		return nil, err
 	}
 	return &b, nil
+}
+
+func getBlurbsDatastore(ctx appengine.Context) (*Blurbs, error) {
+	var blurbs Blurbs
+	if err := datastore.Get(ctx, blurbsKey(ctx), &blurbs); err != nil {
+		return nil, err
+	}
+	return &blurbs, nil
+}
+
+func getBlurbsMemcache(ctx appengine.Context) (*Blurbs, error) {
+	var blurbs Blurbs
+	if _, err := memcache.JSON.Get(ctx, blurbsKey(ctx).String(), &blurbs); err != nil {
+		return nil, err
+	}
+	return &blurbs, nil
+}
+
+func setBlurbsMemcache(ctx appengine.Context, blurbs *Blurbs) {
+	i := &memcache.Item{
+		Key:    blurbsKey(ctx).String(),
+		Object: blurbs,
+	}
+
+	if err := memcache.JSON.Set(ctx, i); err != nil {
+		ctx.Errorf("error setting memcache: %s", err)
+	}
 }
 
 // blurbsKey returns the datastore key used for the Blurbs.
