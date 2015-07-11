@@ -8,4 +8,8 @@
   <ul>
     <li ng-repeat="page in pages">{{page.id}}</li>
   </ul>
+  All Blurbs:
+  <ul>
+    <li ng-repeat="(key, value) in blurbs.content">{{key}} - {{value}}</li>
+  </ul>
 </div>
