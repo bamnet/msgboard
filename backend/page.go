@@ -12,13 +12,21 @@ import (
 	"github.com/russross/blackfriday"
 )
 
+type renderType string
+
+const (
+	renderTypeMarkdown renderType = "markdown"
+	renderTypeHTML     renderType = "html"
+)
+
 // Page models a slide to be shown on the message board.
 type Page struct {
-	Title       string    `json:"title"`                        // Title of the Page
-	Content     string    `json:"content" datastore:",noindex"` // Markdown text content.
-	LastUpdated time.Time `json:"last_updated"`                 // Timestamp the content was last updated.
-	ID          string    `json:"id" datastore:"-"`             // Encoded datastore key acting as an ID.
-	Rendered    string    `json:"rendered" datastore:"-"`       // HTML for the page based rendered from Content.
+	Title       string     `json:"title"`                                 // Title of the Page
+	Content     string     `json:"content" datastore:",noindex"`          // Content for the page.
+	LastUpdated time.Time  `json:"last_updated"`                          // Timestamp the content was last updated.
+	ID          string     `json:"id" datastore:"-"`                      // Encoded datastore key acting as an ID.
+	Rendered    string     `json:"rendered" datastore:"-"`                // HTML for the page based rendered from Content.
+	ContentType renderType `json:"content_type" datastore:"content_type"` // Type of content to render.
 }
 
 // Error codes returned for invalid pages.
@@ -64,6 +72,7 @@ func CreatePage(ctx appengine.Context, jsonBody io.Reader) (*Page, error) {
 		return nil, err
 	}
 	p.LastUpdated = time.Now()
+	p.ContentType = renderTypeMarkdown
 
 	key, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "Page", nil), &p)
 	if err != nil {
@@ -85,8 +94,12 @@ func GetPage(ctx appengine.Context, ID string) (*Page, error) {
 		}
 		defer setPageMemcache(ctx, page)
 	}
-
-	page.Rendered = string(blackfriday.MarkdownCommon([]byte(page.Content)))
+	switch page.ContentType {
+	case renderTypeHTML:
+		page.Rendered = page.Content
+	case renderTypeMarkdown, "":
+		page.Rendered = string(blackfriday.MarkdownCommon([]byte(page.Content)))
+	}
 	return page, nil
 }
 
@@ -112,8 +125,11 @@ func getPageMemcache(ctx appengine.Context, ID string) (*Page, error) {
 	return &page, nil
 }
 
-func setPageMemcache(ctx appengine.Context, page *Page) {
-	// Don't store the rendered HTML in memcache
+func setPageMemcache(ctx appengine.Context, srcPage *Page) {
+	// Create a shallow copy of the page so we don't mess it up by getting it ready for memcache.
+	page := *srcPage
+
+	// Don't store the rendered HTML in memcache.
 	page.Rendered = ""
 
 	i := &memcache.Item{

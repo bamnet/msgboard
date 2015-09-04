@@ -30,7 +30,7 @@ func TestGetPage(t *testing.T) {
 	}
 	defer ctx.Close()
 
-	p := Page{Title: "FooBar", Content: "Body here"}
+	p := Page{Title: "FooBar", Content: "Body here", ContentType: renderTypeHTML}
 	key, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "Page", nil), &p)
 	if err != nil {
 		t.Fatal(err)
@@ -41,8 +41,11 @@ func TestGetPage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if page.Title != p.Title && page.Content != p.Content {
+	if page.Title != p.Title && page.Content != p.Content && page.ContentType != p.ContentType {
 		t.Error("Unexpected page")
+	}
+	if got, want := page.Rendered, p.Content; got != want {
+		t.Errorf("page.Rendered got: %s, want: %s", got, want)
 	}
 }
 
