@@ -72,7 +72,7 @@ func CreatePage(ctx appengine.Context, jsonBody io.Reader) (*Page, error) {
 		return nil, err
 	}
 	p.LastUpdated = time.Now()
-	p.ContentType = renderTypeMarkdown
+	p.ContentType = renderTypeHTML
 
 	key, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "Page", nil), &p)
 	if err != nil {
