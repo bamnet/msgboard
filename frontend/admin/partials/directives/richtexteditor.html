@@ -1,6 +1,21 @@
 <div class="toolbar">
-	<a data-wysihtml5-command="bold">bold</a>
-	<a data-wysihtml5-command="italic">italic</a>
+	<a data-wysihtml5-command="bold" class="btn btn-default btn-sm">Bold</a>
+	<a data-wysihtml5-command="italic" class="btn btn-default btn-sm">Italics</a>
+	<a data-wysihtml5-command="insertUnorderedList" class="btn btn-default btn-sm">&bull; Bullets</a>
+	<a data-wysihtml5-command="insertOrderedList" class="btn btn-default btn-sm">1. Numbers</a>
+	<a data-wysihtml5-command="createTable" class="btn btn-default btn-sm">Add Table</a>
+	<div data-wysihtml5-dialog="createTable" style="display: none;">
+		Rows: <input type="text" data-wysihtml5-dialog-field="rows" /><br/>
+		Cols: <input type="text" data-wysihtml5-dialog-field="cols" /><br/>
+		<a data-wysihtml5-dialog-action="save" class="btn btn-success btn-sm">OK</a>&nbsp;
+		<a data-wysihtml5-dialog-action="cancel" class="btn btn-default btn-sm">Cancel</a>
+	</div>
+	<div data-wysihtml5-hiddentools="table" style="display: none;">
+    <a data-wysihtml5-command="addTableCells" data-wysihtml5-command-value="below" class="btn btn-default btn-sm">Add Row</a>
+    <a data-wysihtml5-command="addTableCells" data-wysihtml5-command-value="after" class="btn btn-default btn-sm">Add Column</a>
+    <a data-wysihtml5-command="deleteTableCells" data-wysihtml5-command-value="row" class="btn btn-default btn-sm">Delete Row</a>
+    <a data-wysihtml5-command="deleteTableCells" data-wysihtml5-command-value="column" class="btn btn-default btn-sm">Delete Column</a>
+  </div>
 </div>
 
 <div class="editor form-control"></div>

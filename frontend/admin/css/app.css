@@ -2,3 +2,26 @@
 	height: 200px;
 }
 
+.wysihtml5-editor, .wysihtml5-editor table td, .wysihtml5-editor table th {
+	outline: 1px dotted #abc;
+}
+
+.wysihtml5-editor table td.wysiwyg-tmp-selected-cell, .wysihtml5-editor table th.wysiwyg-tmp-selected-cell {
+  outline: 2px solid green;
+}
+
+a[data-wysihtml5-command="bold"]{
+	font-weight: bold;
+}
+
+a[data-wysihtml5-command="italic"]{
+	font-style: italic;
+}
+
+.toolbar {
+	margin-bottom: 15px;
+}
+
+div[data-wysihtml5-dialog="createTable"], div[data-wysihtml5-hiddentools="table"] {
+	margin-top: 15px;
+}
