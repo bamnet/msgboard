@@ -15,7 +15,7 @@ msgboardDirectives.directive('richTextEditor', function() {
 			});
 
 			// Update the model on changes to the view.
-		        editor.on('change', function() {
+			editor.on('change', function() {
 				scope.$apply(function() {
 					ctrl.$setViewValue(editor.getValue());
 				});
