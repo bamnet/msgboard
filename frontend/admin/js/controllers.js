@@ -78,3 +78,21 @@ msgboardControllers.controller('BlurbsEditCtrl', ['$scope', '$location', 'Blurbs
 		};
 	}
 ]);
+
+msgboardControllers.controller('BlurbsAddCtrl', ['$scope', '$location', 'Blurbs',
+	function($scope, $location, Blurbs) {
+		$scope.key = '';
+		$scope.value = '';
+
+		$scope.add = function(key, value) {
+			Blurbs.get({}, function(blurbs){
+				blurbs.content[key] = value;
+				blurbs.$update(null, function(){
+					$location.path('/blurbs');
+				}, function(err){
+					$scope.error = err.data;
+				});
+			});
+		};
+	}
+]);

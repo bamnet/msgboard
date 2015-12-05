@@ -30,6 +30,10 @@ msgboardApp.config(['$routeProvider',
 				templateUrl: 'partials/blurbs/show.html',
 				controller: 'BlurbsShowCtrl'
 			}).
+			when('/blurbs/add', {
+				templateUrl: 'partials/blurbs/add.html',
+				controller: 'BlurbsAddCtrl'
+			}).
 			when('/blurbs/edit', {
 				templateUrl: 'partials/blurbs/edit.html',
 				controller: 'BlurbsEditCtrl'

@@ -1,0 +1,8 @@
+<h1>Add Blurb</h1>
+<form role="form">
+  <div ng-show="error" class="alert alert-danger" role="alert">{{ error | capitalize }}</div>
+    Key: <input type="text" ng-model="key" />
+    Value: <input type="text" ng-model="value" />
+  </div>
+  <button ng-click="add(key, value)" type="submit" class="btn btn-success">Add</button>
+</form>
