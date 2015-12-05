@@ -1,7 +1,7 @@
 <h1>Edit Blurbs</h1>
 <form role="form">
   <div ng-show="error" class="alert alert-danger" role="alert">{{ error | capitalize }}</div>
-  <div ng-repeat="(key ,value) in blurbs.content">
+  <div ng-repeat="(key, value) in blurbs.content">
     {{key}}: <input type="text" ng-model="blurbs.content[key]" />
   </div>
   <button ng-click="update(blurbs)" type="submit" class="btn btn-success">Save</button>
